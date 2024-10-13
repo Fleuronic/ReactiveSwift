@@ -8,7 +8,7 @@
 
 /// Represents something that can be “disposed”, usually associated with freeing
 /// resources or canceling work.
-public protocol Disposable: AnyObject {
+public protocol Disposable: AnyObject, Sendable {
 	/// Whether this disposable has been disposed already.
 	var isDisposed: Bool { get }
 
@@ -39,7 +39,7 @@ extension UnsafeAtomicState where State == DisposableState {
 }
 
 /// A disposable that does not have side effect upon disposal.
-internal final class _SimpleDisposable: Disposable {
+internal final class _SimpleDisposable: Disposable, @unchecked Sendable {
 	private let state = UnsafeAtomicState<DisposableState>(.active)
 
 	var isDisposed: Bool {
@@ -56,7 +56,7 @@ internal final class _SimpleDisposable: Disposable {
 }
 
 /// A disposable that has already been disposed.
-internal final class NopDisposable: Disposable {
+internal final class NopDisposable: Disposable, @unchecked Sendable {
 	static let shared = NopDisposable()
 	var isDisposed = true
 	func dispose() {}
@@ -65,7 +65,7 @@ internal final class NopDisposable: Disposable {
 
 /// A type-erased disposable that forwards operations to an underlying disposable.
 public final class AnyDisposable: Disposable {
-	private final class ActionDisposable: Disposable {
+	private final class ActionDisposable: Disposable, @unchecked Sendable {
 		let state: UnsafeAtomicState<DisposableState>
 		var action: (() -> Void)?
 
@@ -123,7 +123,7 @@ public final class AnyDisposable: Disposable {
 }
 
 /// A disposable that will dispose of any number of other disposables.
-public final class CompositeDisposable: Disposable {
+public final class CompositeDisposable: Disposable, @unchecked Sendable {
 	private let disposables: Atomic<Bag<Disposable>?>
 	private var state: UnsafeAtomicState<DisposableState>
 
@@ -332,7 +332,7 @@ extension ScopedDisposable where Inner == CompositeDisposable {
 
 /// A disposable that disposes of its wrapped disposable, and allows its
 /// wrapped disposable to be replaced.
-public final class SerialDisposable: Disposable {
+public final class SerialDisposable: Disposable, @unchecked Sendable {
 	private let _inner: Atomic<Disposable?>
 	private var state: UnsafeAtomicState<DisposableState>
 
