@@ -15,7 +15,7 @@ import Foundation
 /// producer may see a different version of Events. The Events may arrive in a
 /// different order between Signals, or the stream might be completely
 /// different!
-public struct SignalProducer<Value, Error: Swift.Error> {
+public struct SignalProducer<Value, Error: Swift.Error>: @unchecked Sendable {
 	public typealias ProducedSignal = Signal<Value, Error>
 
 	/// `core` is the actual implementation for this `SignalProducer`. It is responsible
@@ -65,7 +65,7 @@ public struct SignalProducer<Value, Error: Swift.Error> {
 	///
 	/// - parameters:
 	///   - startHandler: The starting side effect.
-	public init(_ startHandler: @escaping (Signal<Value, Error>.Observer, Lifetime) -> Void) {
+	public init(_ startHandler: @escaping @Sendable (Signal<Value, Error>.Observer, Lifetime) -> Void) {
 		self.init(SignalCore {
 			let disposable = CompositeDisposable()
 			let (signal, observer) = Signal<Value, Error>.pipe(disposable: disposable)

@@ -17,7 +17,7 @@ import Dispatch
 /// A Signal is kept alive until either of the following happens:
 ///    1. its input observer receives a terminating event; or
 ///    2. it has no active observers, and is not being retained.
-public final class Signal<Value, Error: Swift.Error> {
+public final class Signal<Value, Error: Swift.Error>: @unchecked Sendable {
 	/// The `Signal` core which manages the event stream.
 	///
 	/// A `Signal` is the externally retained shell of the `Signal` core. The separation
